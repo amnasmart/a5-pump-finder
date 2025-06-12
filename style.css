@@ -1,0 +1,15 @@
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f0f8ff;
+    text-align: center;
+    padding: 20px;
+}
+
+#signal-box {
+    margin-top: 20px;
+    padding: 10px;
+    background-color: #e0ffff;
+    border: 1px solid #00ced1;
+    border-radius: 5px;
+}
