@@ -4,10 +4,13 @@ body {
   text-align: center;
   padding: 20px;
 }
+
 #signal-box {
   margin-top: 20px;
-  padding: 10px;
+  padding: 15px;
   background-color: #e0ffff;
-  border: 1px solid #00ced1;
-  border-radius: 5px;
+  border: 2px solid #00ced1;
+  border-radius: 8px;
+  font-size: 18px;
+  color: #003333;
 }
