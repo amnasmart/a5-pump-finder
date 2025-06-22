@@ -1,14 +1,75 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>A5 Pump Finder</title>
-  <link rel="stylesheet" href="style.css"/>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 10px;
+      background: #f0f8ff;
+    }
+    h1 {
+      text-align: center;
+      color: #004085;
+    }
+    .signal {
+      background: #ffffff;
+      border-left: 5px solid #28a745;
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .type {
+      font-weight: bold;
+      color: #155724;
+    }
+    .coin {
+      font-size: 18px;
+      margin: 5px 0;
+    }
+    .entry, .target, .sl {
+      font-size: 14px;
+      margin: 2px 0;
+    }
+  </style>
 </head>
 <body>
-  <h1>A5 Pump Finder Tool</h1>
-  <div id="signal-box">⏳ Loading real-time signal...</div>
-  <script src="script.js"></script>
+  <h1>A5 Pump Finder Signals</h1>
+  <div id="signals"></div>
+
+  <script>
+    async function fetchSignals() {
+      try {
+        const res = await fetch('/api/signals');
+        const data = await res.json();
+
+        const container = document.getElementById('signals');
+        container.innerHTML = '';
+
+        data.forEach(signal => {
+          const div = document.createElement('div');
+          div.className = 'signal';
+          div.innerHTML = `
+            <div class="type">${signal.type}</div>
+            <div class="coin">${signal.coin}</div>
+            <div class="entry">Entry: ${signal.entryPrice} (${signal.entryPercent}%)</div>
+            <div class="target">Target: ${signal.targetPrice} (${signal.targetPercent}%)</div>
+            <div class="sl">Stoploss: ${signal.stoplossPrice} (${signal.slPercent}%)</div>
+          `;
+          container.appendChild(div);
+        });
+      } catch (err) {
+        console.error('Signal fetch failed', err);
+        document.getElementById('signals').innerText = 'Signal fetch failed.';
+      }
+    }
+
+    fetchSignals();
+    setInterval(fetchSignals, 30000);
+  </script>
 </body>
 </html>
