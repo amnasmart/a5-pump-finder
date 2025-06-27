@@ -1,62 +1,64 @@
-<!DOCTYPE html>
+   <!DOCTYPE html>
 <html>
 <head>
-    <title>RSI+MACD Crypto Signals</title>
+    <title>Advanced Crypto Signals (RSI+MACD)</title>
     <style>
-        body { font-family: Arial; text-align: center; margin: 20px; background: #f5f5f5; }
+        body { font-family: Arial; text-align: center; margin-top: 20px; background: #f5f5f5; }
         .container { display: flex; flex-wrap: wrap; justify-content: center; }
         .coin-card {
             width: 280px;
-            margin: 10px;
+            margin: 15px;
             padding: 15px;
             border-radius: 10px;
             background: white;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
         .coin-header { 
             display: flex;
             justify-content: space-between;
-            margin-bottom: 5px;
+            margin-bottom: 10px;
         }
-        .coin-name { font-size: 16px; font-weight: bold; color: #333; }
-        .coin-price { font-size: 14px; color: #555; }
+        .coin-name { font-size: 18px; font-weight: bold; color: #333; }
+        .coin-price { font-size: 16px; color: #555; }
         .indicators {
             display: flex;
-            justify-content: space-between;
+            gap: 10px;
             margin: 8px 0;
+        }
+        .rsi, .macd {
+            padding: 3px 8px;
+            border-radius: 12px;
             font-size: 12px;
-        }
-        .rsi { 
-            padding: 3px 8px;
-            border-radius: 10px;
-            background: #e6f7ff;
-            color: #0066cc;
-        }
-        .macd { 
-            padding: 3px 8px;
-            border-radius: 10px;
-            background: #fff2e6;
-            color: #cc6600;
-        }
-        .signal {
-            font-size: 18px;
-            margin: 10px 0;
-            padding: 5px;
-            border-radius: 5px;
             font-weight: bold;
         }
-        .buy { background: #e6ffe6; color: #009900; }
-        .sell { background: #ffe6e6; color: #cc0000; }
-        .hold { background: #f0f0f0; color: #666; }
+        .rsi { background: #e6f7ff; color: #0066cc; }
+        .macd { background: #fff0e6; color: #cc3300; }
+        .signal {
+            font-size: 20px;
+            margin: 12px 0;
+            padding: 8px;
+            border-radius: 6px;
+        }
+        .signal-buy { background: #e6ffe6; color: #009900; }
+        .signal-sell { background: #ffe6e6; color: #cc0000; }
+        .signal-hold { background: #f0f0f0; color: #666; }
+        .risk-row {
+            display: flex;
+            justify-content: space-between;
+            margin: 6px 0;
+            font-size: 13px;
+        }
+        .risk-label { font-weight: bold; color: #555; }
+        .risk-value { color: #333; }
         .last-updated {
             font-size: 11px;
             color: #999;
-            margin-top: 5px;
+            margin-top: 10px;
         }
     </style>
 </head>
 <body>
-    <h1>📊 RSI+MACD Crypto Signals (397 Coins)</h1>
+    <h1>📈 Advanced Crypto Signals (RSI+MACD + Risk Levels)</h1>
     <p>Updated: <span id="update-time"></span> | <span id="loading">Loading...</span></p>
     
     <div class="container" id="coins-container">
@@ -64,14 +66,13 @@
     </div>
 
     <script>
-        // All 397 coins from your list
+        // All 397 coins with risk parameters
         const coins = [
-            { symbol: "PEPEUSDT", name: "Pepe" },
-            { symbol: "PORKUSDT", name: "PepeFork" },
-            { symbol: "BTCUSDT", name: "Bitcoin" },
-            { symbol: "ETHUSDT", name: "Ethereum" },
-            // ... (All 397 coins here. Full list available on request)
-            { symbol: "ZBCUSDT", name: "Zebec Network" }
+            { symbol: "BTCUSDT", name: "Bitcoin", riskPercent: 1.5, rewardPercent: 3 },
+            { symbol: "ETHUSDT", name: "Ethereum", riskPercent: 2, rewardPercent: 4 },
+            { symbol: "PEPEUSDT", name: "Pepe", riskPercent: 3, rewardPercent: 6 },
+            // ... (All other 394 coins)
+            { symbol: "ZBCUSDT", name: "Zebec Network", riskPercent: 4, rewardPercent: 8 }
         ];
 
         // Calculate EMA (for MACD)
@@ -89,8 +90,8 @@
             const ema12 = calculateEMA(closes, 12);
             const ema26 = calculateEMA(closes, 26);
             const macdLine = ema12 - ema26;
-            const signalLine = calculateEMA(closes.slice(-9), 9); // Last 9 periods
-            return { macdLine, signalLine, histogram: macdLine - signalLine };
+            const signalLine = calculateEMA(closes.slice(-9), 9);
+            return { macdLine, signalLine };
         }
 
         // Calculate RSI
@@ -102,7 +103,7 @@
                 else losses -= diff;
             }
             const avgGain = gains / 14;
-            const avgLoss = losses / 14 || 1; // Avoid division by zero
+            const avgLoss = losses / 14 || 1;
             return 100 - (100 / (1 + (avgGain / avgLoss)));
         }
 
@@ -114,53 +115,66 @@
             const now = new Date();
             document.getElementById("update-time").textContent = now.toLocaleTimeString();
 
-            // Process coins in batches (to avoid API overload)
-            for (let i = 0; i < coins.length; i += 10) {
+            for (let i = 0; i < coins.length; i += 10) { // Process in batches
                 const batch = coins.slice(i, i + 10);
                 await Promise.all(batch.map(async (coin) => {
                     try {
-                        // Fetch candle data (last 26 periods for MACD)
+                        // Fetch data (26 periods for MACD)
                         const klinesUrl = `https://api.binance.com/api/v3/klines?symbol=${coin.symbol}&interval=1h&limit=26`;
                         const response = await fetch(klinesUrl);
                         const data = await response.json();
                         
-                        if (data.length < 26) {
-                            console.log(`Skipping ${coin.symbol} (insufficient data)`);
-                            return;
-                        }
+                        if (data.length < 26) return;
 
                         const closes = data.map(k => parseFloat(k[4]));
                         const currentPrice = closes[closes.length - 1];
 
                         // Calculate indicators
-                        const rsi = calculateRSI(closes.slice(-15)); // Last 15 closes for RSI
+                        const rsi = calculateRSI(closes.slice(-15));
                         const { macdLine, signalLine } = calculateMACD(closes);
 
-                        // Generate signal
+                        // Generate signal (RSI + MACD combo)
                         let signal, signalClass;
                         if (rsi < 30 && macdLine > signalLine) {
-                            signal = "STRONG BUY";
-                            signalClass = "buy";
+                            signal = "STRONG BUY 🚀";
+                            signalClass = "signal-buy";
                         } else if (rsi > 70 && macdLine < signalLine) {
-                            signal = "STRONG SELL";
-                            signalClass = "sell";
+                            signal = "STRONG SELL 🔴";
+                            signalClass = "signal-sell";
                         } else {
-                            signal = "HOLD";
-                            signalClass = "hold";
+                            signal = "HOLD ➖";
+                            signalClass = "signal-hold";
                         }
+
+                        // Risk levels (Entry = Current Price)
+                        const entryPrice = currentPrice;
+                        const stoplossPrice = currentPrice * (1 - coin.riskPercent/100);
+                        const targetPrice = currentPrice * (1 + coin.rewardPercent/100);
 
                         // Create card
                         container.innerHTML += `
                             <div class="coin-card">
                                 <div class="coin-header">
                                     <span class="coin-name">${coin.name}</span>
-                                    <span class="coin-price">$${currentPrice.toFixed(6)}</span>
+                                    <span class="coin-price">$${currentPrice.toFixed(8)}</span>
                                 </div>
                                 <div class="indicators">
                                     <span class="rsi">RSI: ${rsi.toFixed(2)}</span>
-                                    <span class="macd">MACD: ${(macdLine - signalLine).toFixed(4)}</span>
+                                    <span class="macd">MACD: ${(macdLine - signalLine).toFixed(6)}</span>
                                 </div>
                                 <div class="signal ${signalClass}">${signal}</div>
+                                <div class="risk-row">
+                                    <span class="risk-label">Entry:</span>
+                                    <span class="risk-value">$${entryPrice.toFixed(8)}</span>
+                                </div>
+                                <div class="risk-row">
+                                    <span class="risk-label">Stoploss (${coin.riskPercent}%):</span>
+                                    <span class="risk-value">$${stoplossPrice.toFixed(8)}</span>
+                                </div>
+                                <div class="risk-row">
+                                    <span class="risk-label">Target (${coin.rewardPercent}%):</span>
+                                    <span class="risk-value">$${targetPrice.toFixed(8)}</span>
+                                </div>
                                 <div class="last-updated">${coin.symbol} | ${now.toLocaleTimeString()}</div>
                             </div>
                         `;
@@ -178,4 +192,4 @@
         setInterval(updateSignals, 300000);
     </script>
 </body>
-</html>                            
+</html>                         
