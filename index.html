@@ -1,115 +1,175 @@
-
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Advanced Crypto Signals</title>
+    <title>Intraday Spot Signals</title>
     <style>
-        body { font-family: Arial; text-align: center; margin-top: 20px; }
+        body { font-family: Arial; text-align: center; margin: 20px; background: #f5f5f5; }
+        .container { display: flex; flex-wrap: wrap; justify-content: center; }
         .coin-card {
-            display: inline-block;
-            width: 220px;
+            width: 280px;
             margin: 15px;
             padding: 15px;
             border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
-            background-color: #f9f9f9;
+            background: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
-        .buy { border-left: 5px solid green; }
-        .sell { border-left: 5px solid red; }
-        .price { font-size: 18px; font-weight: bold; margin: 5px 0; }
-        .signal { font-size: 20px; margin: 10px 0; color: #333; }
-        .risk-level { 
-            margin-top: 10px; 
+        .coin-header { 
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .coin-name { font-size: 18px; font-weight: bold; color: #333; }
+        .coin-price { font-size: 16px; color: #555; }
+        .rsi-indicator {
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .rsi-low { background: #e6f7e6; color: #2e7d32; } /* RSI < 30 */
+        .rsi-high { background: #ffebee; color: #c62828; } /* RSI > 70 */
+        .signal {
+            font-size: 20px;
+            margin: 12px 0;
             padding: 8px;
-            border-radius: 5px;
+            border-radius: 6px;
+        }
+        .signal-buy { background: #e8f5e9; color: #2e7d32; }
+        .signal-sell { background: #ffebee; color: #c62828; }
+        .signal-hold { background: #e3f2fd; color: #1565c0; }
+        .risk-row {
+            display: flex;
+            justify-content: space-between;
+            margin: 8px 0;
             font-size: 14px;
         }
-        .entry { background-color: #e3f2fd; }
-        .stoploss { background-color: #ffebee; }
-        .target { background-color: #e8f5e9; }
+        .risk-label { font-weight: bold; color: #555; }
+        .risk-value { color: #333; }
+        .last-updated {
+            font-size: 12px;
+            color: #777;
+            margin-top: 15px;
+        }
     </style>
 </head>
 <body>
-    <h1>📊 Advanced Crypto Signals</h1>
-    <p>Entry | Stoploss | Target with Signals</p>
+    <h1>📈 Intraday Spot Signals (RSI Strategy)</h1>
+    <p>Updated: <span id="update-time"></span></p>
     
-    <div id="coins-container">
-        <!-- Signals yahan aayenge -->
+    <div class="container" id="coins-container">
+        <!-- Signals will appear here -->
     </div>
 
     <script>
-        // Coins list with thresholds and risk parameters
+        // Coin configuration (RSI-based)
         const coins = [
-            { 
-                symbol: "BTCUSDT", 
-                name: "Bitcoin",
-                buyThreshold: 50000,
-                entry: 50500,    // Entry price
-                stoploss: 49500, // Stoploss price
-                target: 52000    // Target price
-            },
-            { 
-                symbol: "ETHUSDT", 
-                name: "Ethereum",
-                buyThreshold: 3000,
-                entry: 3050,
-                stoploss: 2950,
-                target: 3200
-            }
+            { symbol: "BTCUSDT", name: "Bitcoin", riskPercent: 1.5, rewardPercent: 3 },
+            { symbol: "ETHUSDT", name: "Ethereum", riskPercent: 2, rewardPercent: 4 },
+            { symbol: "ADAUSDT", name: "Cardano", riskPercent: 2.5, rewardPercent: 5 },
+            { symbol: "ORCAUSDT", name: "Orca", riskPercent: 3, rewardPercent: 6 },
+            { symbol: "SUIUSDT", name: "Sui", riskPercent: 3, rewardPercent: 6 },
+            { symbol: "AUCTIONUSDT", name: "Auction", riskPercent: 3.5, rewardPercent: 7 }
         ];
 
-        // Fetch prices and generate signals
+        // Calculate RSI (Mock function - real implementation needs more data)
+        function calculateRSI(prices) {
+            // Simplified RSI calculation (real implementation requires 14-period data)
+            const gains = [];
+            const losses = [];
+            for (let i = 1; i < prices.length; i++) {
+                const change = prices[i] - prices[i-1];
+                if (change > 0) gains.push(change);
+                else losses.push(Math.abs(change));
+            }
+            const avgGain = gains.reduce((a,b) => a+b, 0) / 14 || 1;
+            const avgLoss = losses.reduce((a,b) => a+b, 0) / 14 || 1;
+            const rs = avgGain / avgLoss;
+            return 100 - (100 / (1 + rs));
+        }
+
+        // Fetch data and generate signals
         async function updateSignals() {
             const container = document.getElementById("coins-container");
             container.innerHTML = "";
+            const now = new Date();
+            document.getElementById("update-time").textContent = now.toLocaleTimeString();
 
             for (const coin of coins) {
                 try {
-                    const response = await fetch(`https://api.binance.com/api/v3/ticker/price?symbol=${coin.symbol}`);
-                    const data = await response.json();
-                    const currentPrice = parseFloat(data.price);
+                    // Fetch 14-period data for RSI
+                    const klinesUrl = `https://api.binance.com/api/v3/klines?symbol=${coin.symbol}&interval=15m&limit=15`;
+                    const klinesResponse = await fetch(klinesUrl);
+                    const klinesData = await klinesResponse.json();
+                    const closes = klinesData.map(k => parseFloat(k[4]));
+                    const currentPrice = closes[closes.length - 1];
+                    
+                    // Calculate RSI
+                    const rsi = calculateRSI(closes);
                     
                     // Determine signal
                     let signal, signalClass;
-                    if (currentPrice > coin.buyThreshold * 1.05) {
-                        signal = "SELL 🔴";
-                        signalClass = "sell";
-                    } else if (currentPrice < coin.buyThreshold) {
-                        signal = "BUY 🚀";
-                        signalClass = "buy";
+                    if (rsi < 30) {
+                        signal = "BUY (Oversold)";
+                        signalClass = "signal-buy";
+                    } else if (rsi > 70) {
+                        signal = "SELL (Overbought)";
+                        signalClass = "signal-sell";
                     } else {
-                        signal = "HOLD ➖";
-                        signalClass = "";
+                        signal = "HOLD";
+                        signalClass = "signal-hold";
                     }
+
+                    // Calculate risk levels
+                    const entryPrice = currentPrice;
+                    const stoplossPrice = currentPrice * (1 - coin.riskPercent/100);
+                    const targetPrice = currentPrice * (1 + coin.rewardPercent/100);
 
                     // Create coin card
                     container.innerHTML += `
-                        <div class="coin-card ${signalClass}">
-                            <h3>${coin.name} (${coin.symbol})</h3>
-                            <div class="price">$${currentPrice.toFixed(2)}</div>
-                            <div class="signal">${signal}</div>
+                        <div class="coin-card">
+                            <div class="coin-header">
+                                <span class="coin-name">${coin.name}</span>
+                                <span class="coin-price">$${currentPrice.toFixed(4)}</span>
+                            </div>
                             
-                            <div class="risk-level entry">
-                                <strong>Entry:</strong> $${coin.entry.toFixed(2)}
+                            <div class="rsi-indicator ${rsi < 30 ? 'rsi-low' : rsi > 70 ? 'rsi-high' : ''}">
+                                RSI: ${rsi.toFixed(2)}
                             </div>
-                            <div class="risk-level stoploss">
-                                <strong>Stoploss:</strong> $${coin.stoploss.toFixed(2)}
+                            
+                            <div class="signal ${signalClass}">${signal}</div>
+                            
+                            <div class="risk-row">
+                                <span class="risk-label">Entry:</span>
+                                <span class="risk-value">$${entryPrice.toFixed(4)}</span>
                             </div>
-                            <div class="risk-level target">
-                                <strong>Target:</strong> $${coin.target.toFixed(2)}
+                            <div class="risk-row">
+                                <span class="risk-label">Stoploss (${coin.riskPercent}%):</span>
+                                <span class="risk-value">$${stoplossPrice.toFixed(4)}</span>
                             </div>
+                            <div class="risk-row">
+                                <span class="risk-label">Target (${coin.rewardPercent}%):</span>
+                                <span class="risk-value">$${targetPrice.toFixed(4)}</span>
+                            </div>
+                            
+                            <div class="last-updated">${now.toLocaleTimeString()}</div>
                         </div>
                     `;
 
                 } catch (error) {
-                    console.error(`Error fetching ${coin.symbol}:`, error);
+                    console.error(`Error processing ${coin.symbol}:`, error);
+                    container.innerHTML += `
+                        <div class="coin-card">
+                            <div style="color:red">Error loading ${coin.name} data</div>
+                        </div>
+                    `;
                 }
             }
         }
 
-        // Initial load and refresh every 10 seconds
+        // Initial load and refresh every 2 minutes (for intraday)
         updateSignals();
-        setInterval(updateSignals, 10000);
+        setInterval(updateSignals, 120000);
     </script>
 </body>
 </html>
