@@ -1,37 +1,61 @@
+
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Multi-Coin Signal Generator</title>
+    <title>Advanced Crypto Signals</title>
     <style>
         body { font-family: Arial; text-align: center; margin-top: 20px; }
         .coin-card {
             display: inline-block;
-            width: 200px;
+            width: 220px;
             margin: 15px;
             padding: 15px;
             border-radius: 10px;
             box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            background-color: #f9f9f9;
         }
-        .buy { background-color: #e6f7e6; color: green; }
-        .sell { background-color: #ffe6e6; color: red; }
-        .price { font-size: 18px; font-weight: bold; }
-        .signal { font-size: 20px; margin-top: 10px; }
+        .buy { border-left: 5px solid green; }
+        .sell { border-left: 5px solid red; }
+        .price { font-size: 18px; font-weight: bold; margin: 5px 0; }
+        .signal { font-size: 20px; margin: 10px 0; color: #333; }
+        .risk-level { 
+            margin-top: 10px; 
+            padding: 8px;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        .entry { background-color: #e3f2fd; }
+        .stoploss { background-color: #ffebee; }
+        .target { background-color: #e8f5e9; }
     </style>
 </head>
 <body>
-    <h1>📊 Multi-Coin Signal Generator</h1>
+    <h1>📊 Advanced Crypto Signals</h1>
+    <p>Entry | Stoploss | Target with Signals</p>
     
     <div id="coins-container">
         <!-- Signals yahan aayenge -->
     </div>
 
     <script>
-        // Coins list with thresholds
+        // Coins list with thresholds and risk parameters
         const coins = [
-            { symbol: "BTCUSDT", name: "Bitcoin", buyThreshold: 50000 },
-            { symbol: "ETHUSDT", name: "Ethereum", buyThreshold: 3000 },
-            { symbol: "SOLUSDT", name: "Solana", buyThreshold: 100 },
-            { symbol: "XRPUSDT", name: "Ripple", buyThreshold: 0.5 }
+            { 
+                symbol: "BTCUSDT", 
+                name: "Bitcoin",
+                buyThreshold: 50000,
+                entry: 50500,    // Entry price
+                stoploss: 49500, // Stoploss price
+                target: 52000    // Target price
+            },
+            { 
+                symbol: "ETHUSDT", 
+                name: "Ethereum",
+                buyThreshold: 3000,
+                entry: 3050,
+                stoploss: 2950,
+                target: 3200
+            }
         ];
 
         // Fetch prices and generate signals
@@ -43,14 +67,14 @@
                 try {
                     const response = await fetch(`https://api.binance.com/api/v3/ticker/price?symbol=${coin.symbol}`);
                     const data = await response.json();
-                    const price = parseFloat(data.price);
+                    const currentPrice = parseFloat(data.price);
                     
                     // Determine signal
                     let signal, signalClass;
-                    if (price > coin.buyThreshold * 1.05) {
+                    if (currentPrice > coin.buyThreshold * 1.05) {
                         signal = "SELL 🔴";
                         signalClass = "sell";
-                    } else if (price < coin.buyThreshold) {
+                    } else if (currentPrice < coin.buyThreshold) {
                         signal = "BUY 🚀";
                         signalClass = "buy";
                     } else {
@@ -61,9 +85,19 @@
                     // Create coin card
                     container.innerHTML += `
                         <div class="coin-card ${signalClass}">
-                            <h3>${coin.name}</h3>
-                            <div class="price">$${price.toFixed(2)}</div>
+                            <h3>${coin.name} (${coin.symbol})</h3>
+                            <div class="price">$${currentPrice.toFixed(2)}</div>
                             <div class="signal">${signal}</div>
+                            
+                            <div class="risk-level entry">
+                                <strong>Entry:</strong> $${coin.entry.toFixed(2)}
+                            </div>
+                            <div class="risk-level stoploss">
+                                <strong>Stoploss:</strong> $${coin.stoploss.toFixed(2)}
+                            </div>
+                            <div class="risk-level target">
+                                <strong>Target:</strong> $${coin.target.toFixed(2)}
+                            </div>
                         </div>
                     `;
 
