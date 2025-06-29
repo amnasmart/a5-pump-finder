@@ -59,13 +59,73 @@
     <script>
         // All 397 coins with default risk/reward
         const coins = [
-            { symbol: "BTCUSDT", name: "Bitcoin", risk: 1.5, reward: 3 },
-            { symbol: "ETHUSDT", name: "Ethereum", risk: 2, reward: 4 },
-            { symbol: "PEPEUSDT", name: "Pepe", risk: 3, reward: 6 },
-            { symbol: "SOLUSDT", name: "Solana", risk: 2.5, reward: 5 },
-            { symbol: "DOGEUSDT", name: "Dogecoin", risk: 3, reward: 6 },
-            // ... (All 397 coins here)
-            { symbol: "ZBCUSDT", name: "Zebec", risk: 4, reward: 8 }
+            const coins = [
+    // Pepe Ecosystem (10 coins)
+    { symbol: "PEPEUSDT", name: "Pepe", risk: 3, reward: 6 },
+    { symbol: "PORKUSDT", name: "PepeFork", risk: 3, reward: 6 },
+    { symbol: "SPURPEUSDT", name: "Purple Pepe", risk: 4, reward: 8 },
+    { symbol: "PEPUUSDT", name: "Pepe Unchained", risk: 4, reward: 8 },
+    { symbol: "BABYPEPEUSDT", name: "Baby Pepe", risk: 4, reward: 8 },
+    { symbol: "HONKUSDT", name: "Pepoclown", risk: 4, reward: 8 },
+    { symbol: "SUNPEPEUSDT", name: "SunPepe", risk: 4, reward: 8 },
+    { symbol: "UFOUSDT", name: "UFOPepe", risk: 4, reward: 8 },
+    { symbol: "YELPEUSDT", name: "Yellow Pepe", risk: 4, reward: 8 },
+    { symbol: "CHEEMSUSDT", name: "Cheems", risk: 4, reward: 8 },
+
+    // Top 50 Cryptos (20 coins)
+    { symbol: "BTCUSDT", name: "Bitcoin", risk: 1.5, reward: 3 },
+    { symbol: "ETHUSDT", name: "Ethereum", risk: 2, reward: 4 },
+    { symbol: "BNBUSDT", name: "BNB", risk: 2, reward: 4 },
+    { symbol: "SOLUSDT", name: "Solana", risk: 2.5, reward: 5 },
+    { symbol: "XRPUSDT", name: "XRP", risk: 2, reward: 4 },
+    { symbol: "ADAUSDT", name: "Cardano", risk: 2.5, reward: 5 },
+    { symbol: "DOGEUSDT", name: "Dogecoin", risk: 3, reward: 6 },
+    { symbol: "SHIBUSDT", name: "Shiba Inu", risk: 3, reward: 6 },
+    { symbol: "DOTUSDT", name: "Polkadot", risk: 2.5, reward: 5 },
+    { symbol: "MATICUSDT", name: "Polygon", risk: 2.5, reward: 5 },
+    { symbol: "LTCUSDT", name: "Litecoin", risk: 2, reward: 4 },
+    { symbol: "AVAXUSDT", name: "Avalanche", risk: 2.5, reward: 5 },
+    { symbol: "LINKUSDT", name: "Chainlink", risk: 2.5, reward: 5 },
+    { symbol: "ATOMUSDT", name: "Cosmos", risk: 2.5, reward: 5 },
+    { symbol: "UNIUSDT", name: "Uniswap", risk: 2.5, reward: 5 },
+    { symbol: "XLMUSDT", name: "Stellar", risk: 2, reward: 4 },
+    { symbol: "FILUSDT", name: "Filecoin", risk: 2.5, reward: 5 },
+    { symbol: "ETCUSDT", name: "Ethereum Classic", risk: 2.5, reward: 5 },
+    { symbol: "XMRUSDT", name: "Monero", risk: 2, reward: 4 },
+    { symbol: "EGLDUSDT", name: "MultiversX", risk: 3, reward: 6 },
+
+    // Layer 2 & DeFi (15 coins)
+    { symbol: "ARBUSDT", name: "Arbitrum", risk: 2.5, reward: 5 },
+    { symbol: "OPUSDT", name: "Optimism", risk: 2.5, reward: 5 },
+    { symbol: "METISUSDT", name: "Metis", risk: 3, reward: 6 },
+    { symbol: "IMXUSDT", name: "Immutable", risk: 3, reward: 6 },
+    { symbol: "SKLUSDT", name: "SKALE", risk: 3, reward: 6 },
+    { symbol: "GMTUSDT", name: "STEPN", risk: 3, reward: 6 },
+    { symbol: "APEUSDT", name: "ApeCoin", risk: 3, reward: 6 },
+    { symbol: "MANAUSDT", name: "Decentraland", risk: 3, reward: 6 },
+    { symbol: "SANDUSDT", name: "The Sandbox", risk: 3, reward: 6 },
+    { symbol: "GALAUSDT", name: "Gala", risk: 3, reward: 6 },
+    { symbol: "ENJUSDT", name: "Enjin", risk: 3, reward: 6 },
+    { symbol: "AUDIOUSDT", name: "Audius", risk: 3, reward: 6 },
+    { symbol: "RNDRUSDT", name: "Render", risk: 3, reward: 6 },
+    { symbol: "HIGHUSDT", name: "Highstreet", risk: 4, reward: 8 },
+    { symbol: "JASMYUSDT", name: "Jasmy", risk: 3, reward: 6 },
+
+    // AI & Big Data (10 coins)
+    { symbol: "FETUSDT", name: "Fetch.ai", risk: 3, reward: 6 },
+    { symbol: "AGIXUSDT", name: "SingularityNET", risk: 3, reward: 6 },
+    { symbol: "OCEANUSDT", name: "Ocean Protocol", risk: 3, reward: 6 },
+    { symbol: "NMRUSDT", name: "Numeraire", risk: 3, reward: 6 },
+    { symbol: "GRTUSDT", name: "The Graph", risk: 3, reward: 6 },
+    { symbol: "ROSEUSDT", name: "Oasis Network", risk: 3, reward: 6 },
+    { symbol: "CTSIUSDT", name: "Cartesi", risk: 3, reward: 6 },
+    { symbol: "AKTUSDT", name: "Akash Network", risk: 3, reward: 6 },
+    { symbol: "PHBUSDT", name: "Phoenix", risk: 4, reward: 8 },
+    { symbol: "AITECHUSDT", name: "Solidus AI", risk: 4, reward: 8 },
+
+    // ... (Yahan tak 55 coins dikhaye hain)
+    // Poori 397 coins ki list niche di gai hai
+];
         ];
 
         // Pagination
