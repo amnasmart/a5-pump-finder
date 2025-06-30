@@ -173,28 +173,31 @@
                     const price = closes[closes.length - 1];
 
                     // Calculate indicators
-                    const rsi = calculateRSI(closes.slice(-15));
-                    const { macdLine, signalLine } = calculateMACD(closes);
-                    const macdHistogram = macdLine - signalLine;
+const rsi = calculateRSI(closes.slice(-15));
+const { macdLine, signalLine } = calculateMACD(closes);
+const macdHistogram = macdLine - signalLine;
 
-                    // Generate signal
-                    let signal, signalClass;
-                    if (rsi < 30 && macdHistogram > 0) {
-                        signal = "BUY 🚀";
-                        signalClass = "buy";
-                    } else if (rsi > 70 && macdHistogram < 0) {
-                        signal = "SELL 🔴";
-                        signalClass = "sell";
-                    } else {
-                        signal = "HOLD ➖";
-                        signalClass = "hold";
-                    }
+// Generate signal with buffer for entry price
+let signal, signalClass;
+const entryBuffer = 0.002; // 0.2% buffer
 
-                    // Risk levels
-                    const entry = price;
-                    const stoploss = (price * (1 - coin.risk/100)).toFixed(8);
-                    const target = (price * (1 + coin.reward/100)).toFixed(8);
+if (rsi < 30 && macdHistogram > 0 && macdLine > signalLine) {
+    signal = "BUY 🚀";
+    signalClass = "buy";
+    entry = price * (1 + entryBuffer); // BUY entry = current price + 0.2%
+} else if (rsi > 70 && macdHistogram < 0 && macdLine < signalLine) {
+    signal = "SELL 🔴";
+    signalClass = "sell";
+    entry = price * (1 - entryBuffer); // SELL entry = current price - 0.2%
+} else {
+    signal = "HOLD ➖";
+    signalClass = "hold";
+    entry = price; // No buffer for HOLD
+}
 
+// Calculate risk levels (based on entry price)
+const stoploss = (entry * (1 - coin.risk/100)).toFixed(8);
+const target = (entry * (1 + coin.reward/100)).toFixed(8);
                     html += `
                         <div class="coin-card">
                             <div class="coin-header">
